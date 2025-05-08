@@ -1,9 +1,16 @@
-# Panel de administración para bot Padbol
+# Panel de administración con conexión a MongoDB
 
-Este proyecto es una base para cargar clientes, entrenar bots y automatizar chats.
+Este proyecto permite cargar clientes desde un formulario y guardar sus datos en MongoDB Atlas.
 
-## Páginas incluidas
+## Rutas
 - `/` → Landing
-- `/admin` → Panel para carga de clientes (datos en consola por ahora)
+- `/admin` → Formulario
+- `/api/save-client` → API interna para guardar
 
-Subilo a GitHub, deployalo en Vercel, y luego conectamos con MongoDB.
+## Variable de entorno
+En Vercel agregá:
+- `MONGODB_URI` → Tu cadena de conexión de Atlas
+
+## Base sugerida
+Base de datos: padbol  
+Colección: clientes

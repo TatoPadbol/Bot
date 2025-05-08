@@ -1,5 +1,5 @@
 {
-  "name": "bot-panel",
+  "name": "bot-panel-db",
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
@@ -9,6 +9,8 @@
   "dependencies": {
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "mongoose": "^7.0.0",
+    "mongodb": "^5.7.0"
   }
 }
