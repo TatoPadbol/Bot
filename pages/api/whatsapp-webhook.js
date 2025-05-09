@@ -1,35 +1,23 @@
+// pages/api/whatsapp-webhook.js
 
-import { buffer } from 'micro';
+export default function handler(req, res) {
+  if (req.method === "GET") {
+    const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+    const mode = req.query["hub.mode"];
+    const token = req.query["hub.verify_token"];
+    const challenge = req.query["hub.challenge"];
 
-export default async function handler(req, res) {
-  if (req.method === 'GET') {
-    const VERIFY_TOKEN = "padbol123";
-    const mode = req.query['hub.mode'];
-    const token = req.query['hub.verify_token'];
-    const challenge = req.query['hub.challenge'];
-
-    if (mode && token && mode === 'subscribe' && token === VERIFY_TOKEN) {
-      console.log('🔐 Webhook verificado correctamente.');
+    if (mode && token && mode === "subscribe" && token === VERIFY_TOKEN) {
+      console.log("WEBHOOK_VERIFIED");
       res.status(200).send(challenge);
     } else {
-      res.sendStatus(403);
+      res.status(403).send("Forbidden");
     }
-  } else if (req.method === 'POST') {
-    const rawBody = await buffer(req);
-    const body = JSON.parse(rawBody.toString());
-
-    console.log('✅ Webhook recibido');
-    console.log('🟡 Contenido del mensaje:', JSON.stringify(body, null, 2));
-
-    res.status(200).send('EVENT_RECEIVED');
+  } else if (req.method === "POST") {
+    console.log("Webhook recibido:", JSON.stringify(req.body, null, 2));
+    res.sendStatus(200);
   } else {
-    res.setHeader('Allow', ['GET', 'POST']);
-    res.status(405).end(`Método ${req.method} no permitido`);
+    res.status(405).send("Method Not Allowed");
   }
 }
