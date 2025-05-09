@@ -1,32 +1,34 @@
+
 document.addEventListener("DOMContentLoaded", function () {
-  const editButtons = document.querySelectorAll(".edit-btn");
-  const deleteButtons = document.querySelectorAll(".delete-btn");
+  document.getElementById("editForm").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-  editButtons.forEach((button) => {
-    button.addEventListener("click", async () => {
-      const clientId = button.dataset.id;
-      const response = await fetch(`/api/get-client?id=${clientId}`);
-      const data = await response.json();
+    const updatedClient = {
+      name: document.getElementById("name").value,
+      category: document.getElementById("category").value,
+      country: document.getElementById("country").value,
+      info: document.getElementById("info").value,
+      phone: document.getElementById("phone").value,
+      faqs: [
+        document.getElementById("faq1").value,
+        document.getElementById("faq2").value,
+        document.getElementById("faq3").value,
+      ],
+    };
 
-      document.getElementById("name").value = data.name || "";
-      document.getElementById("location").value = data.location || "";
-      document.getElementById("faqs").value = data.faqs?.join("\n") || "";
-      document.getElementById("description").value = data.description || "";
-      document.getElementById("phone").value = data.phone || "";
-      document.getElementById("client-id").value = data._id;
-
-      document.getElementById("form-title").textContent = "Editar Cliente";
-      document.getElementById("submit-button").textContent = "Actualizar";
-    });
-  });
-
-  deleteButtons.forEach((button) => {
-    button.addEventListener("click", async () => {
-      const clientId = button.dataset.id;
-      if (confirm("¿Estás seguro de que deseas eliminar este cliente?")) {
-        await fetch(`/api/delete-client?id=${clientId}`, { method: "DELETE" });
-        window.location.reload();
-      }
-    });
+    fetch(`/api/update-client?name=${updatedClient.name}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedClient),
+    })
+      .then((response) => {
+        if (response.ok) {
+          window.location.href = "/admin-client";
+        } else {
+          alert("Error al actualizar el cliente.");
+        }
+      });
   });
 });
