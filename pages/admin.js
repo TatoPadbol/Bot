@@ -1,88 +1,64 @@
-import { useState } from "react";
 
-export default function AdminPanel() {
-  const [cliente, setCliente] = useState({
-    nombre: "",
-    rubro: "",
-    pais: "",
+import { useState } from "react";
+import countries from "@/lib/countries";
+
+export default function AdminClient() {
+  const [client, setClient] = useState({
+    name: "",
+    industry: "",
+    country: "",
+    phone: "",
     info: "",
-    faq1: "",
-    faq2: "",
-    faq3: ""
+    faqs: ["", "", ""],
   });
 
-  const handleChange = (e) => {
-    setCliente({ ...cliente, [e.target.name]: e.target.value });
+  const [phoneError, setPhoneError] = useState("");
+
+  const handleChange = (field, value) => {
+    if (field === "phone") {
+      const isValid = /^\d{10,15}$/.test(value);
+      setPhoneError(isValid ? "" : "Número inválido. Usa solo números, entre 10 y 15 dígitos.");
+    }
+    setClient({ ...client, [field]: value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("/api/save-client", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(cliente)
-      });
-      if (res.ok) {
-        alert("Cliente guardado exitosamente.");
-        setCliente({ nombre: "", rubro: "", pais: "", info: "", faq1: "", faq2: "", faq3: "" });
-      } else {
-        alert("Hubo un error al guardar.");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error en la conexión.");
+  const handleFaqChange = (index, value) => {
+    const newFaqs = [...client.faqs];
+    newFaqs[index] = value;
+    setClient({ ...client, faqs: newFaqs });
+  };
+
+  const handleSubmit = async () => {
+    if (phoneError) {
+      alert("Corrige el número de teléfono antes de guardar.");
+      return;
     }
+    const res = await fetch("/api/save-client", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(client),
+    });
+    if (res.ok) alert("Cliente guardado correctamente");
+    else alert("Error al guardar");
   };
 
   return (
-    <div style={{
-      padding: "2rem",
-      fontFamily: "Arial",
-      background: "linear-gradient(145deg, #f2f2f2, #dcdcdc)",
-      borderRadius: "12px",
-      maxWidth: "600px",
-      margin: "2rem auto",
-      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
-    }}>
-      <h2 style={{ textAlign: "center", color: "#333" }}>📋 Panel de Administración</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="nombre" placeholder="🧑 Nombre del cliente" value={cliente.nombre} onChange={handleChange} style={inputStyle} />
-        <input type="text" name="rubro" placeholder="🏷️ Rubro" value={cliente.rubro} onChange={handleChange} style={inputStyle} />
-        <input type="text" name="pais" placeholder="🌍 País" value={cliente.pais} onChange={handleChange} style={inputStyle} />
-        <textarea name="info" placeholder="📝 Información general del negocio" value={cliente.info} onChange={handleChange} style={textAreaStyle} />
-        <textarea name="faq1" placeholder="❓ Pregunta frecuente 1" value={cliente.faq1} onChange={handleChange} style={textAreaStyle} />
-        <textarea name="faq2" placeholder="❓ Pregunta frecuente 2" value={cliente.faq2} onChange={handleChange} style={textAreaStyle} />
-        <textarea name="faq3" placeholder="❓ Pregunta frecuente 3" value={cliente.faq3} onChange={handleChange} style={textAreaStyle} />
-        <button type="submit" style={buttonStyle}>💾 Guardar cliente</button>
-      </form>
+    <div className="form-container">
+      <input placeholder="Nombre del cliente" value={client.name} onChange={(e) => handleChange("name", e.target.value)} />
+      <input placeholder="Rubro" value={client.industry} onChange={(e) => handleChange("industry", e.target.value)} />
+      <select value={client.country} onChange={(e) => handleChange("country", e.target.value)}>
+        <option value="">Selecciona un país</option>
+        {countries.map((c) => (
+          <option key={c.code} value={c.code}>{c.name}</option>
+        ))}
+      </select>
+      <input placeholder="Número de WhatsApp (Ej: 5491123456789)" value={client.phone} onChange={(e) => handleChange("phone", e.target.value)} />
+      {phoneError && <span style={{ color: "red", fontSize: "14px" }}>{phoneError}</span>}
+      <textarea placeholder="Información general del negocio" value={client.info} onChange={(e) => handleChange("info", e.target.value)} />
+      {client.faqs.map((faq, idx) => (
+        <textarea key={idx} placeholder={`Pregunta frecuente ${idx + 1}`} value={faq} onChange={(e) => handleFaqChange(idx, e.target.value)} />
+      ))}
+      <button onClick={handleSubmit}>Guardar cliente</button>
     </div>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  marginBottom: "10px",
-  borderRadius: "8px",
-  border: "1px solid #ccc",
-  fontSize: "14px"
-};
-
-const textAreaStyle = {
-  ...inputStyle,
-  minHeight: "60px"
-};
-
-const buttonStyle = {
-  backgroundColor: "#0070f3",
-  color: "#fff",
-  border: "none",
-  padding: "12px 20px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  fontSize: "16px",
-  width: "100%"
-};
