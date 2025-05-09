@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from "react";
-import countries from "@/lib/countries";
+import countries from "../lib/countries";
 
 export default function AdminClient() {
   const [client, setClient] = useState({
