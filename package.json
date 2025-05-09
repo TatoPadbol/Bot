@@ -11,6 +11,7 @@
     "react": "latest",
     "react-dom": "latest",
     "mongoose": "^7.0.0",
-    "mongodb": "^5.7.0"
+    "mongodb": "^5.7.0",
+    "micro": "^9.3.4"
   }
 }
