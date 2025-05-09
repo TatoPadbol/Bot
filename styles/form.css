@@ -1,0 +1,19 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 500px;
+  margin: auto;
+}
+input, select, textarea {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+button {
+  background: #0070f3;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+}
