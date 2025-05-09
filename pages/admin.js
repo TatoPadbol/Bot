@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 
 import { useState } from "react";
 import countries from "@/lib/countries";
@@ -37,7 +38,8 @@ export default function AdminClient() {
   };
 
   return (
-    <div className="form-container">
+    <div className="form-container" style={{ maxWidth: 500, margin: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <h1 style={{ color: 'red', textAlign: 'center' }}>PRUEBA</h1>
       <input placeholder="Nombre del cliente" value={client.name} onChange={(e) => handleChange("name", e.target.value)} />
       <input placeholder="Rubro" value={client.industry} onChange={(e) => handleChange("industry", e.target.value)} />
       <select value={client.country} onChange={(e) => handleChange("country", e.target.value)}>
