@@ -41,7 +41,7 @@ export default function AdminClient() {
           <option key={c.code} value={c.code}>{c.name}</option>
         ))}
       </select>
-      <input placeholder="Número de teléfono (Ej: 5491123456789)" value={client.phone} onChange={(e) => handleChange("phone", e.target.value)} />
+      <input placeholder="Número de WhatsApp (Ej: 5491123456789)" value={client.phone} onChange={(e) => handleChange("phone", e.target.value)} />
       <textarea placeholder="Información general del negocio" value={client.info} onChange={(e) => handleChange("info", e.target.value)} />
       {client.faqs.map((faq, idx) => (
         <textarea key={idx} placeholder={`Pregunta frecuente ${idx + 1}`} value={faq} onChange={(e) => handleFaqChange(idx, e.target.value)} />
