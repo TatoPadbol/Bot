@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import countries from "@/lib/countries";
 
@@ -12,13 +11,7 @@ export default function AdminClient() {
     faqs: ["", "", ""],
   });
 
-  const [phoneError, setPhoneError] = useState("");
-
   const handleChange = (field, value) => {
-    if (field === "phone") {
-      const isValid = /^\d{10,15}$/.test(value);
-      setPhoneError(isValid ? "" : "Número inválido. Usa solo números, entre 10 y 15 dígitos.");
-    }
     setClient({ ...client, [field]: value });
   };
 
@@ -29,10 +22,11 @@ export default function AdminClient() {
   };
 
   const handleSubmit = async () => {
-    if (phoneError) {
-      alert("Corrige el número de teléfono antes de guardar.");
+    if (!/^[0-9]{10,15}$/.test(client.phone)) {
+      alert("Número de teléfono inválido. Usa solo números, sin espacios ni símbolos.");
       return;
     }
+
     const res = await fetch("/api/save-client", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -53,10 +47,9 @@ export default function AdminClient() {
         ))}
       </select>
       <input placeholder="Número de WhatsApp (Ej: 5491123456789)" value={client.phone} onChange={(e) => handleChange("phone", e.target.value)} />
-      {phoneError && <span style={{ color: "red", fontSize: "14px" }}>{phoneError}</span>}
       <textarea placeholder="Información general del negocio" value={client.info} onChange={(e) => handleChange("info", e.target.value)} />
       {client.faqs.map((faq, idx) => (
-        <textarea key={idx} placeholder={`Pregunta frecuente ${idx + 1}`} value={faq} onChange={(e) => handleFaqChange(idx, e.target.value)} />
+        <textarea key={idx} placeholder={\`Pregunta frecuente \${idx + 1}\`} value={faq} onChange={(e) => handleFaqChange(idx, e.target.value)} />
       ))}
       <button onClick={handleSubmit}>Guardar cliente</button>
     </div>
