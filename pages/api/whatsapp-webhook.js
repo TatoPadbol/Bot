@@ -1,6 +1,12 @@
-// pages/api/whatsapp-webhook.js
+import { buffer } from 'micro';
 
-export default function handler(req, res) {
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export default async function handler(req, res) {
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -14,9 +20,19 @@ export default function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    console.log("✅ Webhook recibido");
-    res.sendStatus(200);
-  } else {
-    res.status(405).end();
+    try {
+      const rawBody = await buffer(req);
+      const body = JSON.parse(rawBody.toString());
+
+      console.log("✅ Webhook recibido:");
+      console.log(JSON.stringify(body, null, 2));
+
+      return res.status(200).send("EVENT_RECEIVED");
+    } catch (error) {
+      console.error("❌ Error procesando el webhook:", error);
+      return res.status(500).send("Error interno");
+    }
   }
+
+  res.status(405).end();
 }
