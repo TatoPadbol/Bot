@@ -1,21 +1,19 @@
-import dbConnect from "../../lib/dbConnect";
-import { MongoClient } from "mongodb";
+// pages/api/save-client.js
+import connectDB from '../../lib/mongodb';
+import Client from '../../models/client';
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
-
-  await dbConnect();
-  const client = new MongoClient(process.env.MONGODB_URI);
-  try {
-    await client.connect();
-    const db = client.db("padbol");
-    const collection = db.collection("clientes");
-    await collection.insertOne(req.body);
-    res.status(200).json({ message: "Guardado con éxito" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error guardando cliente" });
-  } finally {
-    await client.close();
+  await connectDB();
+  if (req.method === 'POST') {
+    try {
+      const { name, project, country, question1, question2, extra, whatsappNumber } = req.body;
+      const client = new Client({ name, project, country, question1, question2, extra, whatsappNumber });
+      await client.save();
+      res.status(201).json({ success: true });
+    } catch (error) {
+      res.status(400).json({ success: false, error });
+    }
+  } else {
+    res.status(405).end();
   }
 }
