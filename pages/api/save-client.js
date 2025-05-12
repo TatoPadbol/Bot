@@ -1,6 +1,6 @@
 // pages/api/save-client.js
 import connectDB from '../../lib/mongodb';
-import Client from '../../models/client';
+import Client from '../../../models/client';
 
 export default async function handler(req, res) {
   await connectDB();
