@@ -36,10 +36,11 @@ export default function EditClients() {
       {editing ? (
         <div>
           <input placeholder="Nombre" value={editing.name} onChange={(e) => handleChange("name", e.target.value)} />
-          <input placeholder="Rubro" value={editing.project} onChange={(e) => handleChange("project", e.target.value)} />
+          <input placeholder="Rubro" value={editing.industry} onChange={(e) => handleChange("industry", e.target.value)} />
           <input placeholder="País" value={editing.country} onChange={(e) => handleChange("country", e.target.value)} />
-          <input placeholder="Teléfono" value={editing.whatsappNumber} onChange={(e) => handleChange("whatsappNumber", e.target.value)} />
-          <textarea placeholder="Info" value={editing.extra} onChange={(e) => handleChange("extra", e.target.value)} />
+          <input placeholder="Teléfono" value={editing.phone} onChange={(e) => handleChange("phone", e.target.value)} />
+          <textarea placeholder="Info" value={editing.info} onChange={(e) => handleChange("info", e.target.value)} />
+          <textarea placeholder="FAQs (separadas por ;)" value={editing.faqs.join("; ")} onChange={(e) => handleChange("faqs", e.target.value.split(";"))} />
           <button onClick={handleSubmit}>Guardar</button>
         </div>
       ) : (
