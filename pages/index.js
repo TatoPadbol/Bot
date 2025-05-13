@@ -16,7 +16,7 @@ export default function Home() {
         <a style={btnStyle}>➕ Agregar cliente</a>
       </Link>
 
-      <Link href="/admin-clients">
+      <Link href="/edit-clients">
         <a style={btnStyle}>🛠️ Ver / Editar clientes</a>
       </Link>
 
