@@ -1,29 +1,17 @@
-import dbConnect from "../../lib/dbConnect";
-import { MongoClient } from "mongodb";
+import connectDB from '../../lib/mongodb';
+import Client from '../../models/client';
 
 export default async function handler(req, res) {
-  await dbConnect();
-  const client = new MongoClient(process.env.MONGODB_URI);
-  await client.connect();
-  const db = client.db("padbol");
-  const collection = db.collection("clientes");
+  await connectDB();
 
-  if (req.method === "GET") {
-    const clientes = await collection.find({}).toArray();
-    res.json(clientes);
+  if (req.method === 'GET') {
+    const clients = await Client.find({});
+    res.status(200).json(clients);
+  } else if (req.method === 'PUT') {
+    const { name, ...rest } = req.body;
+    const result = await Client.updateOne({ name }, { $set: rest });
+    res.status(200).json({ success: true, result });
+  } else {
+    res.status(405).end();
   }
-
-  if (req.method === "DELETE") {
-    const { nombre } = req.body;
-    await collection.deleteOne({ nombre });
-    res.status(200).end();
-  }
-
-  if (req.method === "PUT") {
-    const { nombre, ...rest } = req.body;
-    await collection.updateOne({ nombre }, { $set: { ...rest, nombre } });
-    res.status(200).end();
-  }
-
-  await client.close();
 }
