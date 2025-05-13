@@ -4,10 +4,14 @@ export default function EditClients() {
   const [clients, setClients] = useState([]);
   const [editing, setEditing] = useState(null);
 
+  const refreshClients = async () => {
+    const res = await fetch("/api/clientes");
+    const data = await res.json();
+    setClients(data);
+  };
+
   useEffect(() => {
-    fetch("/api/clientes")
-      .then((res) => res.json())
-      .then(setClients);
+    refreshClients();
   }, []);
 
   const handleChange = (field, value) => {
@@ -23,8 +27,7 @@ export default function EditClients() {
     if (res.ok) {
       alert("Cliente actualizado correctamente");
       setEditing(null);
-      const updated = await fetch("/api/clientes").then((res) => res.json());
-      setClients(updated);
+      await refreshClients();
     } else {
       alert("Error al actualizar");
     }

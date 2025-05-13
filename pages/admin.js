@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 import { useState } from "react";
 import countries from "../lib/countries";
 import { useRouter } from "next/router";
@@ -41,7 +39,7 @@ export default function AdminClient() {
   };
 
   return (
-    <div className="form-container" style={{ maxWidth: 500, margin: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <div style={{ maxWidth: 500, margin: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
       <h1 style={{ color: 'red', textAlign: 'center' }}>PADBOT</h1>
       <input placeholder="Nombre del cliente" value={client.name} onChange={(e) => handleChange("name", e.target.value)} />
       <input placeholder="Rubro" value={client.industry} onChange={(e) => handleChange("industry", e.target.value)} />
@@ -51,7 +49,7 @@ export default function AdminClient() {
           <option key={c.code} value={c.code}>{c.name}</option>
         ))}
       </select>
-      <input placeholder="Número de WhatsApp (Ej: 5491123456789)" value={client.phone} onChange={(e) => handleChange("phone", e.target.value)} />
+      <input placeholder="Número de WhatsApp" value={client.phone} onChange={(e) => handleChange("phone", e.target.value)} />
       <textarea placeholder="Información general del negocio" value={client.info} onChange={(e) => handleChange("info", e.target.value)} />
       {client.faqs.map((faq, idx) => (
         <textarea key={idx} placeholder={`Pregunta frecuente ${idx + 1}`} value={faq} onChange={(e) => handleFaqChange(idx, e.target.value)} />
