@@ -23,7 +23,7 @@ export default function EditClients() {
     if (res.ok) {
       alert("Cliente actualizado correctamente");
       setEditing(null);
-      const updated = await fetch("/api/clientes").then(res => res.json());
+      const updated = await fetch("/api/clientes").then((res) => res.json());
       setClients(updated);
     } else {
       alert("Error al actualizar");
@@ -35,17 +35,17 @@ export default function EditClients() {
       <h1>Editar Clientes</h1>
       {editing ? (
         <div>
-          <input placeholder="Nombre" value={editing.nombre} onChange={(e) => handleChange("nombre", e.target.value)} />
-          <input placeholder="Rubro" value={editing.industry} onChange={(e) => handleChange("industry", e.target.value)} />
+          <input placeholder="Nombre" value={editing.name} onChange={(e) => handleChange("name", e.target.value)} />
+          <input placeholder="Rubro" value={editing.project} onChange={(e) => handleChange("project", e.target.value)} />
           <input placeholder="País" value={editing.country} onChange={(e) => handleChange("country", e.target.value)} />
-          <input placeholder="Teléfono" value={editing.phone} onChange={(e) => handleChange("phone", e.target.value)} />
-          <textarea placeholder="Info" value={editing.info} onChange={(e) => handleChange("info", e.target.value)} />
+          <input placeholder="Teléfono" value={editing.whatsappNumber} onChange={(e) => handleChange("whatsappNumber", e.target.value)} />
+          <textarea placeholder="Info" value={editing.extra} onChange={(e) => handleChange("extra", e.target.value)} />
           <button onClick={handleSubmit}>Guardar</button>
         </div>
       ) : (
         clients.map((client, idx) => (
           <div key={idx} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
-            <strong>{client.nombre}</strong> - {client.country}
+            <strong>{client.name}</strong> - {client.country}
             <button onClick={() => setEditing(client)} style={{ marginLeft: 10 }}>Editar</button>
           </div>
         ))
