@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       res.status(201).json({ success: true });
     } catch (error) {
       console.error("Error en save-client:", error);
-      res.status(400).json({ success: false, error });
+      res.status(400).json({ success: false, error: error.message });
     }
   } else {
     res.status(405).end();
