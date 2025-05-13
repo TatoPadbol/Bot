@@ -1,13 +1,12 @@
-
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const ClientSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  industry: { type: String },
-  country: { type: String },
-  phone: { type: String },
-  info: { type: String },
+  name: String,
+  industry: String,
+  country: String,
+  phone: String,
+  info: String,
   faqs: [String]
-});
+}, { collection: 'clientes' }); // 👈 Acá indicamos explícitamente el nombre de la colección
 
-export default mongoose.models.Client || mongoose.model("Client", ClientSchema);
+export default mongoose.models.Client || mongoose.model('Client', ClientSchema);
