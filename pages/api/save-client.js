@@ -8,13 +8,11 @@ export default async function handler(req, res) {
       const { name, industry, country, phone, info, faqs } = req.body;
       const client = new Client({
         name,
-        project: industry,
+        industry,
         country,
-        whatsappNumber: phone,
-        extra: info,
-        question1: faqs[0] || "",
-        question2: faqs[1] || "",
-        question3: faqs[2] || "",
+        phone,
+        info,
+        faqs
       });
       await client.save();
       res.status(201).json({ success: true });
