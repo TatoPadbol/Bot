@@ -24,17 +24,20 @@ export default async function handler(req, res) {
 
     if (!message) return res.status(200).end();
 
-    const numero = message.from;
+    const numeroRemitente = message.from;
     const texto = message.text?.body;
 
-    console.log(`📲 Mensaje recibido de ${numero}: ${texto}`);
+    let numeroNegocio = entry?.changes?.[0]?.value?.metadata?.display_phone_number || "";
+    numeroNegocio = numeroNegocio.replace(/\D/g, ""); // elimina espacios, guiones, paréntesis, etc.
+
+    console.log(`📲 Mensaje recibido de ${numeroRemitente} hacia ${numeroNegocio}: ${texto}`);
 
     await dbConnect();
-    const cliente = await Client.findOne({ phone: numero });
+    const cliente = await Client.findOne({ phone: numeroNegocio });
 
     if (!cliente) {
-      console.log("❌ Cliente no encontrado");
-      await responder(numero, "Gracias por tu mensaje. Un asistente humano se pondrá en contacto pronto.");
+      console.log("❌ No se encontró un cliente con ese número de negocio");
+      await responder(numeroRemitente, "Gracias por tu mensaje. Un asistente humano se pondrá en contacto pronto.");
       return res.status(200).end();
     }
 
@@ -78,12 +81,12 @@ Pregunta del usuario: ${texto}
 
       if (!respuesta) throw new Error("OpenAI no devolvió texto");
 
-      await responder(numero, respuesta);
+      await responder(numeroRemitente, respuesta);
       return res.status(200).end();
 
     } catch (err) {
       console.error("❌ Error al procesar mensaje:", err);
-      await responder(numero, "Hubo un error técnico. Te respondemos en breve.");
+      await responder(numeroRemitente, "Hubo un error técnico. Te responderemos pronto.");
       return res.status(500).end();
     }
   }
