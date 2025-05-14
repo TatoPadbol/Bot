@@ -33,8 +33,7 @@ export default async function handler(req, res) {
     const cliente = await Client.findOne({ phone: numeroNegocio });
     if (!cliente) {
       console.log("❌ Cliente (negocio) no encontrado");
-      await responder(numeroRemitente,
-        "Gracias por tu mensaje. Un asistente humano se pondrá en contacto pronto.");
+      await responder(numeroRemitente, "Gracias por tu mensaje. Un asistente humano se pondrá en contacto pronto.");
       return res.status(200).end();
     }
 
@@ -53,8 +52,7 @@ Usuario preguntó: ${texto}
       console.log("🧠 Enviando prompt a OpenAI...");
       console.log("📋 Prompt:", prompt);
 
-      const openaiRes = await fetch(
-        "https://api.openai.com/v1/chat/completions", {
+      const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,8 +67,9 @@ Usuario preguntó: ${texto}
 
       const json = await openaiRes.json();
       console.log("📦 Respuesta de OpenAI:", JSON.stringify(json));
+
       if (!openaiRes.ok) {
-        console.error("🛑 OpenAI devolvió error:", json);
+        console.error("🛑 Error de OpenAI:", json);
         throw new Error("Falla en respuesta de OpenAI");
       }
 
@@ -82,8 +81,7 @@ Usuario preguntó: ${texto}
 
     } catch (err) {
       console.error("❌ Error al procesar mensaje:", err);
-      await responder(numeroRemitente,
-        "Hubo un error técnico. Te responderemos en breve.");
+      await responder(numeroRemitente, "Hubo un error técnico. Te responderemos en breve.");
       return res.status(500).end();
     }
   }
@@ -92,13 +90,12 @@ Usuario preguntó: ${texto}
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }
 
-// 🚀 Enviar respuesta asegurando formato exacto
 async function responder(to, mensaje) {
-  const destino = `+${to.replace(/^\+/, "").replace(/\D/g, "")}`;
+  // Responder al número tal como vino, anteponiendo "+"
+  const destino = to.startsWith("+") ? to : `+${to}`;
   console.log("👉 Enviando respuesta a:", destino);
 
   const url = `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER_ID}/messages`;
-
   const body = {
     messaging_product: "whatsapp",
     to: destino,
