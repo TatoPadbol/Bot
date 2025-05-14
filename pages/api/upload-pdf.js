@@ -1,6 +1,6 @@
 
-import dbConnect from '../../../lib/dbConnect';
-import Client from '../../../models/client';
+import dbConnect from '../../lib/dbConnect';
+import Client from '../../models/client';
 import formidable from 'formidable';
 import fs from 'fs';
 import pdfParse from 'pdf-parse';
