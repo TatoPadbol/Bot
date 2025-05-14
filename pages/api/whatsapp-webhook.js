@@ -1,18 +1,16 @@
-// pages/api/whatsapp-webhook.js
-
 import dbConnect from "../../lib/dbConnect";
 import Client from "../../models/client";
 
 export default async function handler(req, res) {
   // 🔐 VALIDACIÓN DEL WEBHOOK DE META
   if (req.method === "GET") {
-    const VERIFY_TOKEN = "padbot123"; // Asegurate de usar el mismo que pusiste en Meta
+    const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
 
     if (mode === "subscribe" && token === VERIFY_TOKEN) {
-      console.log("✅ Webhook verificado");
+      console.log("✅ Webhook verificado correctamente");
       return res.status(200).send(challenge);
     } else {
       return res.sendStatus(403);
@@ -24,14 +22,13 @@ export default async function handler(req, res) {
     const entry = req.body?.entry?.[0];
     const message = entry?.changes?.[0]?.value?.messages?.[0];
 
-    if (!message) return res.sendStatus(200); // Ping vacío, sin mensaje
+    if (!message) return res.sendStatus(200);
 
     const numero = message.from;
     const texto = message.text?.body;
 
     console.log(`📲 Mensaje recibido de ${numero}: ${texto}`);
 
-    // 📦 Buscar cliente en Mongo por número
     await dbConnect();
     const cliente = await Client.findOne({ phone: numero });
 
@@ -41,7 +38,6 @@ export default async function handler(req, res) {
       return res.sendStatus(200);
     }
 
-    // 🧠 Armar prompt personalizado
     const faqs = cliente.faqs || [];
     const prompt = `
 Sos el asistente virtual del negocio de nombre "${cliente.name}". Tu tarea es responder preguntas de potenciales clientes.
@@ -53,7 +49,6 @@ Respondé de forma breve, clara y profesional. Si no sabés la respuesta, indic�
 Pregunta del usuario: ${texto}
     `;
 
-    // 🤖 Consultar OpenAI
     try {
       const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
@@ -69,26 +64,30 @@ Pregunta del usuario: ${texto}
       });
 
       const json = await openaiRes.json();
+
+      if (!openaiRes.ok) {
+        console.error("🛑 Error de OpenAI:", json);
+        throw new Error("Falla en respuesta de OpenAI");
+      }
+
       const respuesta = json.choices?.[0]?.message?.content?.trim();
 
-      if (!respuesta) throw new Error("OpenAI no devolvió respuesta válida");
+      if (!respuesta) throw new Error("OpenAI no devolvió texto");
 
       await responder(numero, respuesta);
       return res.sendStatus(200);
 
     } catch (err) {
-      console.error("❌ Error al generar respuesta:", err);
-      await responder(numero, "Hubo un error al generar la respuesta. Te responderemos pronto.");
+      console.error("❌ Error al procesar mensaje:", err);
+      await responder(numero, "Hubo un error técnico. Te respondemos en breve.");
       return res.sendStatus(500);
     }
   }
 
-  // Si no es GET ni POST
   res.setHeader("Allow", ["GET", "POST"]);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }
 
-// 🚀 Enviar mensaje por WhatsApp
 async function responder(to, mensaje) {
   const url = `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER_ID}/messages`;
 
@@ -101,14 +100,23 @@ async function responder(to, mensaje) {
 
   const headers = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${process.env.ACCESS_TOKEN}`
+    Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}` // ✅ ESTA ES LA CORRECCIÓN CLAVE
   };
 
-  await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body)
-  });
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body)
+    });
 
-  console.log("✅ Respuesta enviada a WhatsApp");
+    if (!res.ok) {
+      const error = await res.text();
+      console.error("❌ Error al enviar mensaje a WhatsApp:", error);
+    } else {
+      console.log("✅ Respuesta enviada a WhatsApp");
+    }
+  } catch (err) {
+    console.error("❌ Error al conectar con WhatsApp API:", err);
+  }
 }
