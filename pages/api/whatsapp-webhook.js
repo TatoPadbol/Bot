@@ -2,7 +2,6 @@ import dbConnect from "../../lib/dbConnect";
 import Client from "../../models/client";
 
 export default async function handler(req, res) {
-  // 🔐 VALIDACIÓN DEL WEBHOOK DE META
   if (req.method === "GET") {
     const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
     const mode = req.query["hub.mode"];
@@ -17,7 +16,6 @@ export default async function handler(req, res) {
     }
   }
 
-  // 📩 MENSAJE RECIBIDO DESDE WHATSAPP
   if (req.method === "POST") {
     const entry = req.body?.entry?.[0];
     const message = entry?.changes?.[0]?.value?.messages?.[0];
@@ -28,15 +26,17 @@ export default async function handler(req, res) {
     const texto = message.text?.body;
 
     let numeroNegocio = entry?.changes?.[0]?.value?.metadata?.display_phone_number || "";
-    numeroNegocio = numeroNegocio.replace(/\D/g, ""); // elimina espacios, guiones, paréntesis, etc.
+    numeroNegocio = numeroNegocio.replace(/\D/g, "");
 
-    console.log(`📲 Mensaje recibido de ${numeroRemitente} hacia ${numeroNegocio}: ${texto}`);
+    console.log(`📲 Mensaje recibido de: ${numeroRemitente}`);
+    console.log(`🏪 Número del negocio: ${numeroNegocio}`);
+    console.log(`🗣️ Texto recibido: ${texto}`);
 
     await dbConnect();
     const cliente = await Client.findOne({ phone: numeroNegocio });
 
     if (!cliente) {
-      console.log("❌ No se encontró un cliente con ese número de negocio");
+      console.log("❌ Cliente no encontrado en Mongo");
       await responder(numeroRemitente, "Gracias por tu mensaje. Un asistente humano se pondrá en contacto pronto.");
       return res.status(200).end();
     }
@@ -96,6 +96,8 @@ Pregunta del usuario: ${texto}
 }
 
 async function responder(to, mensaje) {
+  console.log("👉 Enviando respuesta a:", to); // LOG CLAVE
+
   const url = `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER_ID}/messages`;
 
   const body = {
