@@ -20,7 +20,9 @@ export default function EditClients() {
     setEditing({ ...editing, [field]: value });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     const res = await fetch("/api/clientes", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -53,7 +55,7 @@ export default function EditClients() {
     <div style={{ maxWidth: 600, margin: "auto" }}>
       <h1>Editar Clientes</h1>
       {editing ? (
-        <div>
+        <form onSubmit={handleSubmit}>
           <input placeholder="Nombre" value={editing.name} onChange={(e) => handleChange("name", e.target.value)} />
           <input placeholder="Rubro" value={editing.industry} onChange={(e) => handleChange("industry", e.target.value)} />
           <input placeholder="País" value={editing.country} onChange={(e) => handleChange("country", e.target.value)} />
@@ -64,8 +66,8 @@ export default function EditClients() {
             <label>Cargar archivo PDF</label>
             <input type="file" accept="application/pdf" onChange={(e) => setPdfFile(e.target.files[0])} />
           </div>
-          <button onClick={handleSubmit}>Guardar</button>
-        </div>
+          <button type="submit">Guardar</button>
+        </form>
       ) : (
         clients.map((client, idx) => (
           <div key={idx}>
