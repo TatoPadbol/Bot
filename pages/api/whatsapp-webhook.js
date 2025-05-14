@@ -1,10 +1,7 @@
-// pages/api/whatsapp-webhook.js
-
 import dbConnect from "../../lib/dbConnect";
 import Client from "../../models/client";
 
 export default async function handler(req, res) {
-  // 🔐 VALIDACIÓN DEL WEBHOOK DE META
   if (req.method === "GET") {
     const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
     const mode = req.query["hub.mode"];
@@ -19,17 +16,16 @@ export default async function handler(req, res) {
     }
   }
 
-  // 📩 MENSAJE RECIBIDO DESDE WHATSAPP
   if (req.method === "POST") {
     const entry = req.body?.entry?.[0];
     const message = entry?.changes?.[0]?.value?.messages?.[0];
     if (!message) return res.status(200).end();
 
-    const numeroRemitente = message.from;               // quien manda el mensaje
-    const texto = message.text?.body;                   // texto entrante
-    let numeroNegocio = entry?.changes?.[0]?.value
-                          ?.metadata?.display_phone_number || "";
-    numeroNegocio = numeroNegocio.replace(/\D/g, "");   // normalizo sólo dígitos
+    const numeroRemitente = message.from;
+    const texto = message.text?.body;
+
+    let numeroNegocio = entry?.changes?.[0]?.value?.metadata?.display_phone_number || "";
+    numeroNegocio = numeroNegocio.replace(/\D/g, "");
 
     console.log(`📲 Recibido de ${numeroRemitente} hacia ${numeroNegocio}: ${texto}`);
 
@@ -81,50 +77,50 @@ Usuario preguntó: ${texto}
       const respuesta = json.choices?.[0]?.message?.content?.trim();
       if (!respuesta) throw new Error("OpenAI no devolvió texto");
 
-      // Envío la respuesta
       await responder(numeroRemitente, respuesta);
       return res.status(200).end();
 
     } catch (err) {
       console.error("❌ Error al procesar mensaje:", err);
       await responder(numeroRemitente,
-        "Hubo un error técnico. Te respondiremos en breve.");
+        "Hubo un error técnico. Te responderemos en breve.");
       return res.status(500).end();
     }
   }
 
-  // Métodos no permitidos
-  res.setHeader("Allow", ["GET","POST"]);
+  res.setHeader("Allow", ["GET", "POST"]);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }
 
-// 🚀 Función para enviar mensaje a WhatsApp
+// 🚀 Enviar respuesta asegurando formato exacto
 async function responder(to, mensaje) {
-  // 🌟 Aseguro que el número tenga '+' al frente
-  const destino = to.startsWith("+") ? to : `+${to}`;
+  const destino = `+${to.replace(/^\+/, "").replace(/\D/g, "")}`;
   console.log("👉 Enviando respuesta a:", destino);
 
   const url = `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER_ID}/messages`;
+
   const body = {
     messaging_product: "whatsapp",
     to: destino,
     type: "text",
     text: { body: mensaje }
   };
+
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`
   };
 
   try {
-    const resp = await fetch(url, {
+    const res = await fetch(url, {
       method: "POST",
       headers,
       body: JSON.stringify(body)
     });
-    if (!resp.ok) {
-      const errText = await resp.text();
-      console.error("❌ Error enviando a WhatsApp:", errText);
+
+    if (!res.ok) {
+      const error = await res.text();
+      console.error("❌ Error enviando a WhatsApp:", error);
     } else {
       console.log("✅ Respuesta enviada a WhatsApp");
     }
