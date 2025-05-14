@@ -1,7 +1,10 @@
+// pages/api/whatsapp-webhook.js
+
 import dbConnect from "../../lib/dbConnect";
 import Client from "../../models/client";
 
 export default async function handler(req, res) {
+  // 🔐 VALIDACIÓN DEL WEBHOOK DE META
   if (req.method === "GET") {
     const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
     const mode = req.query["hub.mode"];
@@ -16,47 +19,46 @@ export default async function handler(req, res) {
     }
   }
 
+  // 📩 MENSAJE RECIBIDO DESDE WHATSAPP
   if (req.method === "POST") {
     const entry = req.body?.entry?.[0];
     const message = entry?.changes?.[0]?.value?.messages?.[0];
-
     if (!message) return res.status(200).end();
 
-    const numeroRemitente = message.from;
-    const texto = message.text?.body;
+    const numeroRemitente = message.from;               // quien manda el mensaje
+    const texto = message.text?.body;                   // texto entrante
+    let numeroNegocio = entry?.changes?.[0]?.value
+                          ?.metadata?.display_phone_number || "";
+    numeroNegocio = numeroNegocio.replace(/\D/g, "");   // normalizo sólo dígitos
 
-    let numeroNegocio = entry?.changes?.[0]?.value?.metadata?.display_phone_number || "";
-    numeroNegocio = numeroNegocio.replace(/\D/g, "");
-
-    console.log(`📲 Mensaje recibido de: ${numeroRemitente}`);
-    console.log(`🏪 Número del negocio: ${numeroNegocio}`);
-    console.log(`🗣️ Texto recibido: ${texto}`);
+    console.log(`📲 Recibido de ${numeroRemitente} hacia ${numeroNegocio}: ${texto}`);
 
     await dbConnect();
     const cliente = await Client.findOne({ phone: numeroNegocio });
-
     if (!cliente) {
-      console.log("❌ Cliente no encontrado en Mongo");
-      await responder(numeroRemitente, "Gracias por tu mensaje. Un asistente humano se pondrá en contacto pronto.");
+      console.log("❌ Cliente (negocio) no encontrado");
+      await responder(numeroRemitente,
+        "Gracias por tu mensaje. Un asistente humano se pondrá en contacto pronto.");
       return res.status(200).end();
     }
 
     const faqs = cliente.faqs || [];
     const prompt = `
-Sos el asistente virtual del negocio de nombre "${cliente.name}". Tu tarea es responder preguntas de potenciales clientes.
-Información general del negocio: ${cliente.info || ""}
+Sos el asistente virtual del negocio "${cliente.name}".
+Información general: ${cliente.info || ""}
 Preguntas frecuentes:
-${faqs.map((f, i) => `${i + 1}. ${f}`).join("\n")}
+${faqs.map((f,i) => `${i+1}. ${f}`).join("\n")}
 
-Respondé de forma breve, clara y profesional. Si no sabés la respuesta, indicá que un humano se pondrá en contacto.
-Pregunta del usuario: ${texto}
+Respondé breve, clara y profesional. Si no sabés, decí que un humano atenderá.
+Usuario preguntó: ${texto}
     `;
 
     try {
       console.log("🧠 Enviando prompt a OpenAI...");
       console.log("📋 Prompt:", prompt);
 
-      const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      const openaiRes = await fetch(
+        "https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,61 +73,62 @@ Pregunta del usuario: ${texto}
 
       const json = await openaiRes.json();
       console.log("📦 Respuesta de OpenAI:", JSON.stringify(json));
-
       if (!openaiRes.ok) {
-        console.error("🛑 Error de OpenAI:", json);
+        console.error("🛑 OpenAI devolvió error:", json);
         throw new Error("Falla en respuesta de OpenAI");
       }
 
       const respuesta = json.choices?.[0]?.message?.content?.trim();
-
       if (!respuesta) throw new Error("OpenAI no devolvió texto");
 
+      // Envío la respuesta
       await responder(numeroRemitente, respuesta);
       return res.status(200).end();
 
     } catch (err) {
       console.error("❌ Error al procesar mensaje:", err);
-      await responder(numeroRemitente, "Hubo un error técnico. Te responderemos pronto.");
+      await responder(numeroRemitente,
+        "Hubo un error técnico. Te respondiremos en breve.");
       return res.status(500).end();
     }
   }
 
-  res.setHeader("Allow", ["GET", "POST"]);
+  // Métodos no permitidos
+  res.setHeader("Allow", ["GET","POST"]);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }
 
+// 🚀 Función para enviar mensaje a WhatsApp
 async function responder(to, mensaje) {
-  console.log("👉 Enviando respuesta a:", to); // LOG CLAVE
+  // 🌟 Aseguro que el número tenga '+' al frente
+  const destino = to.startsWith("+") ? to : `+${to}`;
+  console.log("👉 Enviando respuesta a:", destino);
 
   const url = `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER_ID}/messages`;
-
   const body = {
     messaging_product: "whatsapp",
-    to,
+    to: destino,
     type: "text",
     text: { body: mensaje }
   };
-
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`
   };
 
   try {
-    const res = await fetch(url, {
+    const resp = await fetch(url, {
       method: "POST",
       headers,
       body: JSON.stringify(body)
     });
-
-    if (!res.ok) {
-      const error = await res.text();
-      console.error("❌ Error al enviar mensaje a WhatsApp:", error);
+    if (!resp.ok) {
+      const errText = await resp.text();
+      console.error("❌ Error enviando a WhatsApp:", errText);
     } else {
       console.log("✅ Respuesta enviada a WhatsApp");
     }
   } catch (err) {
-    console.error("❌ Error al conectar con WhatsApp API:", err);
+    console.error("❌ Error conectando con WhatsApp API:", err);
   }
 }
