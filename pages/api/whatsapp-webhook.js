@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     const cliente = await Client.findOne({ phone: numeroNegocio });
     if (!cliente) {
       console.log("❌ Cliente (negocio) no encontrado");
-      await responder(numeroRemitente, "Gracias por tu mensaje. Un asistente humano se pondrá en contacto pronto.");
+      await responder(null, "Gracias por tu mensaje. Un asistente humano se pondrá en contacto pronto.");
       return res.status(200).end();
     }
 
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
 Sos el asistente virtual del negocio "${cliente.name}".
 Información general: ${cliente.info || ""}
 Preguntas frecuentes:
-${faqs.map((f,i) => `${i+1}. ${f}`).join("\n")}
+${faqs.map((f, i) => `${i + 1}. ${f}`).join("\n")}
 
 Respondé breve, clara y profesional. Si no sabés, decí que un humano atenderá.
 Usuario preguntó: ${texto}
@@ -76,12 +76,12 @@ Usuario preguntó: ${texto}
       const respuesta = json.choices?.[0]?.message?.content?.trim();
       if (!respuesta) throw new Error("OpenAI no devolvió texto");
 
-      await responder(numeroRemitente, respuesta);
+      await responder(null, respuesta);
       return res.status(200).end();
 
     } catch (err) {
       console.error("❌ Error al procesar mensaje:", err);
-      await responder(numeroRemitente, "Hubo un error técnico. Te responderemos en breve.");
+      await responder(null, "Hubo un error técnico. Te responderemos en breve.");
       return res.status(500).end();
     }
   }
@@ -90,12 +90,13 @@ Usuario preguntó: ${texto}
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }
 
-async function responder(to, mensaje) {
-  // Responder al número tal como vino, anteponiendo "+"
-  const destino = to.startsWith("+") ? to : `+${to}`;
-  console.log("👉 Enviando respuesta a:", destino);
+// 🚀 Función forzada: siempre responde al número autorizado
+async function responder(_, mensaje) {
+  const destino = "+542216280711"; // número autorizado fijo para pruebas
+  console.log("👉 Enviando respuesta forzada a:", destino);
 
   const url = `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER_ID}/messages`;
+
   const body = {
     messaging_product: "whatsapp",
     to: destino,
