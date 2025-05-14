@@ -1,3 +1,4 @@
+<h3 style={{ color: 'green' }}>📎 Carga de PDF habilitada</h3>
 import { useState } from "react";
 import countries from "../lib/countries";
 import { useRouter } from "next/router";
