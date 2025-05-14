@@ -1,8 +1,10 @@
+
 import { useEffect, useState } from "react";
 
 export default function EditClients() {
   const [clients, setClients] = useState([]);
   const [editing, setEditing] = useState(null);
+  const [pdfFile, setPdfFile] = useState(null);
 
   const refreshClients = async () => {
     const res = await fetch("/api/clientes");
@@ -24,13 +26,27 @@ export default function EditClients() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editing),
     });
+
     if (res.ok) {
+      await uploadPdf(editing.phone);
       alert("Cliente actualizado correctamente");
       setEditing(null);
       await refreshClients();
     } else {
       alert("Error al actualizar");
     }
+  };
+
+  const uploadPdf = async (phone) => {
+    if (!pdfFile || !phone) return;
+    const formData = new FormData();
+    formData.append("file", pdfFile);
+    formData.append("phone", phone);
+
+    await fetch("/api/upload-pdf", {
+      method: "POST",
+      body: formData,
+    });
   };
 
   return (
@@ -44,13 +60,17 @@ export default function EditClients() {
           <input placeholder="Teléfono" value={editing.phone} onChange={(e) => handleChange("phone", e.target.value)} />
           <textarea placeholder="Info" value={editing.info} onChange={(e) => handleChange("info", e.target.value)} />
           <textarea placeholder="FAQs (separadas por ;)" value={editing.faqs.join("; ")} onChange={(e) => handleChange("faqs", e.target.value.split(";"))} />
+          <div>
+            <label>Cargar archivo PDF</label>
+            <input type="file" accept="application/pdf" onChange={(e) => setPdfFile(e.target.files[0])} />
+          </div>
           <button onClick={handleSubmit}>Guardar</button>
         </div>
       ) : (
         clients.map((client, idx) => (
-          <div key={idx} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
-            <strong>{client.name}</strong> - {client.country}
-            <button onClick={() => setEditing(client)} style={{ marginLeft: 10 }}>Editar</button>
+          <div key={idx}>
+            <h3>{client.name}</h3>
+            <button onClick={() => setEditing(client)}>Editar</button>
           </div>
         ))
       )}

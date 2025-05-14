@@ -1,62 +1,74 @@
-<h3 style={{ color: 'green' }}>📎 Carga de PDF habilitada</h3>
+
 import { useState } from "react";
-import countries from "../lib/countries";
-import { useRouter } from "next/router";
 
-export default function AdminClient() {
-  const [client, setClient] = useState({
-    name: "",
-    industry: "",
-    country: "",
-    phone: "",
-    info: "",
-    faqs: ["", "", ""],
-  });
+export default function Admin() {
+  const [name, setName] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [country, setCountry] = useState("");
+  const [phone, setPhone] = useState("");
+  const [info, setInfo] = useState("");
+  const [faqs, setFaqs] = useState(["", "", ""]);
+  const [pdfFile, setPdfFile] = useState(null);
 
-  const router = useRouter();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleChange = (field, value) => {
-    setClient({ ...client, [field]: value });
-  };
-
-  const handleFaqChange = (index, value) => {
-    const newFaqs = [...client.faqs];
-    newFaqs[index] = value;
-    setClient({ ...client, faqs: newFaqs });
-  };
-
-  const handleSubmit = async () => {
-    if (!/^\d{10,15}$/.test(client.phone)) {
-      alert("Número de WhatsApp inválido. Debe contener entre 10 y 15 dígitos.");
-      return;
-    }
-    const res = await fetch("/api/save-client", {
+    const res = await fetch("/api/clientes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(client),
+      body: JSON.stringify({ name, industry, country, phone, info, faqs }),
     });
-    if (res.ok) alert("Cliente guardado correctamente");
-    else alert("Error al guardar");
+
+    if (res.ok) {
+      alert("Cliente guardado");
+      await uploadPdf(phone);
+    } else {
+      alert("Error al guardar");
+    }
+  };
+
+  const uploadPdf = async (phone) => {
+    if (!pdfFile || !phone) return;
+    const formData = new FormData();
+    formData.append("file", pdfFile);
+    formData.append("phone", phone);
+
+    await fetch("/api/upload-pdf", {
+      method: "POST",
+      body: formData,
+    });
+  };
+
+  const updateFaq = (index, value) => {
+    const newFaqs = [...faqs];
+    newFaqs[index] = value;
+    setFaqs(newFaqs);
   };
 
   return (
-    <div style={{ maxWidth: 500, margin: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <h1 style={{ color: 'red', textAlign: 'center' }}>PADBOT</h1>
-      <input placeholder="Nombre del cliente" value={client.name} onChange={(e) => handleChange("name", e.target.value)} />
-      <input placeholder="Rubro" value={client.industry} onChange={(e) => handleChange("industry", e.target.value)} />
-      <select value={client.country} onChange={(e) => handleChange("country", e.target.value)}>
-        <option value="">Selecciona un país</option>
-        {countries.map((c) => (
-          <option key={c.code} value={c.code}>{c.name}</option>
+    <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
+      <h1 style={{ textAlign: "center", color: "red" }}>PADBOT</h1>
+      <form onSubmit={handleSubmit}>
+        <input placeholder="Nombre del cliente" value={name} onChange={(e) => setName(e.target.value)} />
+        <input placeholder="Rubro" value={industry} onChange={(e) => setIndustry(e.target.value)} />
+        <select value={country} onChange={(e) => setCountry(e.target.value)}>
+          <option value="">Selecciona un país</option>
+          <option value="AR">Argentina</option>
+          <option value="ES">España</option>
+          <option value="US">Estados Unidos</option>
+        </select>
+        <input placeholder="Número de WhatsApp" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <textarea placeholder="Información general del negocio" value={info} onChange={(e) => setInfo(e.target.value)} />
+        {faqs.map((faq, idx) => (
+          <textarea key={idx} placeholder={`Pregunta frecuente ${idx + 1}`} value={faq} onChange={(e) => updateFaq(idx, e.target.value)} />
         ))}
-      </select>
-      <input placeholder="Número de WhatsApp" value={client.phone} onChange={(e) => handleChange("phone", e.target.value)} />
-      <textarea placeholder="Información general del negocio" value={client.info} onChange={(e) => handleChange("info", e.target.value)} />
-      {client.faqs.map((faq, idx) => (
-        <textarea key={idx} placeholder={`Pregunta frecuente ${idx + 1}`} value={faq} onChange={(e) => handleFaqChange(idx, e.target.value)} />
-      ))}
-      <button onClick={handleSubmit}>Guardar cliente</button>
-      <button onClick={() => router.push("/edit-clients")}>Editar clientes existentes</button>
+        <div>
+          <label>Cargar archivo PDF</label>
+          <input type="file" accept="application/pdf" onChange={(e) => setPdfFile(e.target.files[0])} />
+        </div>
+        <button type="submit">Guardar cliente</button>
+      </form>
+      <a href="/edit-clients"><button>Editar clientes existentes</button></a>
     </div>
   );
 }
