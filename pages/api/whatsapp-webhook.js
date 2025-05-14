@@ -50,6 +50,9 @@ Pregunta del usuario: ${texto}
     `;
 
     try {
+      console.log("🧠 Enviando prompt a OpenAI...");
+      console.log("📋 Prompt:", prompt);
+
       const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -64,6 +67,7 @@ Pregunta del usuario: ${texto}
       });
 
       const json = await openaiRes.json();
+      console.log("📦 Respuesta de OpenAI:", JSON.stringify(json));
 
       if (!openaiRes.ok) {
         console.error("🛑 Error de OpenAI:", json);
@@ -100,7 +104,7 @@ async function responder(to, mensaje) {
 
   const headers = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}` // ✅ ESTA ES LA CORRECCIÓN CLAVE
+    Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`
   };
 
   try {
