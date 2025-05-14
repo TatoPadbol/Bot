@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       console.log("✅ Webhook verificado correctamente");
       return res.status(200).send(challenge);
     } else {
-      return res.sendStatus(403);
+      return res.status(403).end();
     }
   }
 
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const entry = req.body?.entry?.[0];
     const message = entry?.changes?.[0]?.value?.messages?.[0];
 
-    if (!message) return res.sendStatus(200);
+    if (!message) return res.status(200).end();
 
     const numero = message.from;
     const texto = message.text?.body;
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     if (!cliente) {
       console.log("❌ Cliente no encontrado");
       await responder(numero, "Gracias por tu mensaje. Un asistente humano se pondrá en contacto pronto.");
-      return res.sendStatus(200);
+      return res.status(200).end();
     }
 
     const faqs = cliente.faqs || [];
@@ -79,12 +79,12 @@ Pregunta del usuario: ${texto}
       if (!respuesta) throw new Error("OpenAI no devolvió texto");
 
       await responder(numero, respuesta);
-      return res.sendStatus(200);
+      return res.status(200).end();
 
     } catch (err) {
       console.error("❌ Error al procesar mensaje:", err);
       await responder(numero, "Hubo un error técnico. Te respondemos en breve.");
-      return res.sendStatus(500);
+      return res.status(500).end();
     }
   }
 
