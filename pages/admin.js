@@ -13,7 +13,7 @@ export default function Admin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("/api/clientes", {
+    const res = await fetch("/api/save-client", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, industry, country, phone, info, url }),
