@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   await connectDB();
   if (req.method === 'POST') {
     try {
-      const { name, industry, country, phone, info, faqs } = req.body;
+      const { name, industry, country, phone, info, faqs , url } = req.body;
       const client = new Client({
         name,
         industry,

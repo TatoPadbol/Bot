@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const ClientSchema = new mongoose.Schema({
+  url: { type: String },
   name: String,
   industry: String,
   country: String,
