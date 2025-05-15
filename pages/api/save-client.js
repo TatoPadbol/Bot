@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import connectDB from '../../lib/mongodb';
 import Client from '../../models/client';
 
