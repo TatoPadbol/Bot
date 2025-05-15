@@ -7,8 +7,8 @@ export default function Admin() {
   const [country, setCountry] = useState("");
   const [phone, setPhone] = useState("");
   const [info, setInfo] = useState("");
-    const [pdfFile, setPdfFile] = useState(null);
   const [url, setUrl] = useState("");
+  const [pdfFile, setPdfFile] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +16,7 @@ export default function Admin() {
     const res = await fetch("/api/clientes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, industry, country, phone, info, }),
+      body: JSON.stringify({ name, industry, country, phone, info, url }),
     });
 
     if (res.ok) {
@@ -37,10 +37,6 @@ export default function Admin() {
       method: "POST",
       body: formData,
     });
-  };
-
-      newFaqs[index] = value;
-    setFaqs(newFaqs);
   };
 
   return (
