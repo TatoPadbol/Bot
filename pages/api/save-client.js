@@ -20,9 +20,7 @@ export default async function handler(req, res) {
     if (url) {
       try {
         const response = await fetch(url);
-        const html = await response.text();
-        const cheerio = require('cheerio');
-        const $ = cheerio.load(html);
+        const html = await response.text();        const $ = cheerio.load(html);
         const text = $('body').text().replace(/\s+/g, ' ').trim();
 
         client.trainingData = client.trainingData || [];
