@@ -12,19 +12,18 @@ export default async function handler(req, res) {
   try {
     await client.connect();
     const db = client.db("padbol");
-    const data = await db.collection("clientes").findOne({ nombre: cliente });
+    const data = await db.collection("clientes").findOne({ name: cliente });
 
     if (!data) return res.status(404).json({ error: "Cliente no encontrado" });
 
-    const { info = "", faq1 = "", faq2 = "", faq3 = "" } = data;
+    const trainingChunks = (data.trainingData || []).map(entry => entry.content).filter(Boolean);
+    const trainingText = trainingChunks.join("\n\n");
 
     const prompt = `
-Sos el asistente virtual del negocio de nombre "${cliente}". Tu tarea es responder preguntas de potenciales clientes.
-Información general del negocio: ${info}
-Preguntas frecuentes:
-1. ${faq1}
-2. ${faq2}
-3. ${faq3}
+Sos el asistente virtual del negocio llamado "${cliente}". Tu tarea es responder preguntas de potenciales clientes.
+Información entrenada:
+${trainingText}
+
 Respondé de forma breve, clara y profesional. Si no sabés la respuesta, indicá que un humano se pondrá en contacto.
 Pregunta del usuario: ${pregunta}
 `;
