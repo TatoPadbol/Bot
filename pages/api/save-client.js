@@ -15,14 +15,14 @@ export default async function handler(req, res) {
         info});
       client.url = url;
       await client.save();
-        console.log("✅ Guardado en trainingData para:", client.name);
+        console.error("✅ Guardado en trainingData para:", client.name);
     if (url) {
-      console.log("✅ Intentando entrenar desde la URL:", url);
+      console.error("✅ Intentando entrenar desde la URL:", url);
       try {
         const response = await fetch(url);
         const html = await response.text();        const $ = cheerio.load(html);
         const text = $('body').text().replace(/\s+/g, ' ').trim();
-        console.log("✅ Contenido extraído:", text.slice(0, 200));
+        console.error("✅ Contenido extraído:", text.slice(0, 200));
 
         client.trainingData = client.trainingData || [];
         client.trainingData.push({
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         });
 
         await client.save();
-        console.log("✅ Guardado en trainingData para:", client.name);
+        console.error("✅ Guardado en trainingData para:", client.name);
       } catch (err) {
         console.error("Error al entrenar desde la URL:", err.message);
       }
