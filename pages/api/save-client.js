@@ -12,9 +12,7 @@ export default async function handler(req, res) {
         industry,
         country,
         phone,
-        info,
-        faqs
-      });
+        info});
       client.url = url;
       await client.save();
     if (url) {
