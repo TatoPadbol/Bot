@@ -7,8 +7,8 @@ export default function Admin() {
   const [country, setCountry] = useState("");
   const [phone, setPhone] = useState("");
   const [info, setInfo] = useState("");
-  const [faqs, setFaqs] = useState(["", "", ""]);
-  const [pdfFile, setPdfFile] = useState(null);
+    const [pdfFile, setPdfFile] = useState(null);
+  const [url, setUrl] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +16,7 @@ export default function Admin() {
     const res = await fetch("/api/clientes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, industry, country, phone, info, faqs }),
+      body: JSON.stringify({ name, industry, country, phone, info, }),
     });
 
     if (res.ok) {
@@ -39,9 +39,7 @@ export default function Admin() {
     });
   };
 
-  const updateFaq = (index, value) => {
-    const newFaqs = [...faqs];
-    newFaqs[index] = value;
+      newFaqs[index] = value;
     setFaqs(newFaqs);
   };
 
@@ -58,8 +56,9 @@ export default function Admin() {
           <option value="US">Estados Unidos</option>
         </select>
         <input placeholder="Número de WhatsApp" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <input placeholder="URL para entrenar al bot" value={url} onChange={(e) => setUrl(e.target.value)} />
         <textarea placeholder="Información general del negocio" value={info} onChange={(e) => setInfo(e.target.value)} />
-        {faqs.map((faq, idx) => (
+        {.map((faq, idx) => (
           <textarea key={idx} placeholder={`Pregunta frecuente ${idx + 1}`} value={faq} onChange={(e) => updateFaq(idx, e.target.value)} />
         ))}
         <div>
