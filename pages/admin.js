@@ -58,9 +58,6 @@ export default function Admin() {
         <input placeholder="Número de WhatsApp" value={phone} onChange={(e) => setPhone(e.target.value)} />
         <input placeholder="URL para entrenar al bot" value={url} onChange={(e) => setUrl(e.target.value)} />
         <textarea placeholder="Información general del negocio" value={info} onChange={(e) => setInfo(e.target.value)} />
-        {.map((faq, idx) => (
-          <textarea key={idx} placeholder={`Pregunta frecuente ${idx + 1}`} value={faq} onChange={(e) => updateFaq(idx, e.target.value)} />
-        ))}
         <div>
           <label>Cargar archivo PDF</label>
           <input type="file" accept="application/pdf" onChange={(e) => setPdfFile(e.target.files[0])} />
