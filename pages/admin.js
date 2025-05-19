@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import "../styles/form.css";
 
 export default function Admin() {
   const [name, setName] = useState("");
