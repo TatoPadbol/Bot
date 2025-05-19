@@ -1,40 +1,37 @@
-import Link from "next/link";
 
 export default function Home() {
   return (
     <div style={{
-      padding: "2rem",
-      fontFamily: "Arial, sans-serif",
-      maxWidth: "600px",
-      margin: "0 auto",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "100vh",
+      backgroundColor: "#f4f4f4",
+      fontFamily: "sans-serif",
+      padding: "20px",
       textAlign: "center"
     }}>
-      <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>🚀 Bienvenido al panel de gestión PadbolBot</h1>
-      <p style={{ marginBottom: "2rem" }}>Elegí qué querés hacer:</p>
-
-      <Link href="/admin">
-        <a style={btnStyle}>➕ Agregar cliente</a>
-      </Link>
-
-      <Link href="/edit-clients">
-        <a style={btnStyle}>🛠️ Ver / Editar clientes</a>
-      </Link>
-
-      <Link href="/chat">
-        <a style={btnStyle}>💬 Probar el bot</a>
-      </Link>
+      <img src="/padbot-logo.png" alt="PadBot" style={{ width: "100px", marginBottom: "20px" }} />
+      <h1 style={{ fontSize: "2em", color: "#000" }}>Bienvenido al panel de gestión <br /> <strong>PadBot</strong></h1>
+      <p>Elegí qué querés hacer:</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "20px", width: "100%", maxWidth: "400px" }}>
+        <a href="/admin" style={buttonStyle}>➕ Agregar cliente</a>
+        <a href="/edit-clients" style={buttonStyle}>🛠️ Ver / Editar clientes</a>
+        <a href="/chat" style={buttonStyle}>💬 Probar el bot</a>
+      </div>
     </div>
   );
 }
 
-const btnStyle = {
-  display: "block",
-  padding: "1rem",
+const buttonStyle = {
   backgroundColor: "#0070f3",
-  color: "#fff",
+  color: "white",
+  padding: "12px",
   borderRadius: "8px",
   textDecoration: "none",
-  marginBottom: "1rem",
+  fontWeight: "bold",
   fontSize: "16px",
-  fontWeight: "bold"
+  transition: "background 0.3s",
+  textAlign: "center"
 };
