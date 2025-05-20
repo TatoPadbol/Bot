@@ -13,6 +13,7 @@
     "react-dom": "latest",
     "mongoose": "^7.0.0",
     "mongodb": "^5.7.0",
-    "micro": "^9.3.4"
+    "micro": "^9.3.4",
+    "cloudinary": "^1.41.3"
   }
 }
