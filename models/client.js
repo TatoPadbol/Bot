@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 
 const ClientSchema = new mongoose.Schema({
@@ -7,6 +8,7 @@ const ClientSchema = new mongoose.Schema({
   country: String,
   phone: String,
   info: String,
+  pdf: String,
   trainingData: [
     {
       filename: String,
@@ -14,6 +16,6 @@ const ClientSchema = new mongoose.Schema({
       uploadedAt: Date
     }
   ]
-}, { collection: 'clientes' }); // 👈 Acá indicamos explícitamente el nombre de la colección
+}, { collection: 'clientes' });
 
 export default mongoose.models.Client || mongoose.model('Client', ClientSchema);
