@@ -1,10 +1,15 @@
 
-import fs from 'fs';
-import path from 'path';
 import formidable from 'formidable';
+import { v2 as cloudinary } from 'cloudinary';
 import * as cheerio from 'cheerio';
 import connectDB from '../../lib/mongodb';
 import Client from '../../models/client';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 export const config = {
   api: {
@@ -19,10 +24,7 @@ export default async function handler(req, res) {
     return res.status(405).end('Method Not Allowed');
   }
 
-  const form = new formidable.IncomingForm({
-    uploadDir: path.join(process.cwd(), '/public/uploads'),
-    keepExtensions: true,
-  });
+  const form = new formidable.IncomingForm({ keepExtensions: true });
 
   form.parse(req, async (err, fields, files) => {
     if (err) {
@@ -38,21 +40,20 @@ export default async function handler(req, res) {
         country,
         phone,
         info,
-        url,
+        url
       });
 
-      // Procesar PDF si fue subido
       if (files.pdf && files.pdf[0]) {
-        const filePath = files.pdf[0].filepath;
-        const fileName = path.basename(filePath);
-        client.pdf = '/uploads/' + fileName;
-        console.log("✅ PDF guardado en:", client.pdf);
+        const result = await cloudinary.uploader.upload(files.pdf[0].filepath, {
+          resource_type: 'raw', folder: 'padbot-pdfs'
+        });
+        client.pdf = result.secure_url;
+        console.log("✅ PDF subido a Cloudinary:", result.secure_url);
       }
 
       await client.save();
       console.log("✅ Cliente guardado:", client.name);
 
-      // Entrenamiento desde URL
       if (url) {
         try {
           const response = await fetch(url);
