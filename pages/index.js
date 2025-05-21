@@ -14,10 +14,10 @@ export default function Home() {
       <p>Elegí qué querés hacer:</p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "20px", maxWidth: "300px", margin: "40px auto" }}>
-        <Link href="/add-client">
+        <Link href="/admin">
           <button style={{ padding: "10px", fontSize: "16px", cursor: "pointer" }}>➕ Agregar cliente</button>
         </Link>
-        <Link href="/admin">
+        <Link href="/edit-clients">
           <button style={{ padding: "10px", fontSize: "16px", cursor: "pointer" }}>🛠️ Ver / Editar clientes</button>
         </Link>
         <Link href="/chat">
