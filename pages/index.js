@@ -17,10 +17,10 @@ export default function Home() {
         <Link href="/add-client">
           <button style={{ padding: "10px", fontSize: "16px", cursor: "pointer" }}>➕ Agregar cliente</button>
         </Link>
-        <Link href="/edit-clients">
+        <Link href="/admin">
           <button style={{ padding: "10px", fontSize: "16px", cursor: "pointer" }}>🛠️ Ver / Editar clientes</button>
         </Link>
-        <Link href="/test-bot">
+        <Link href="/chat">
           <button style={{ padding: "10px", fontSize: "16px", cursor: "pointer" }}>💬 Probar el bot</button>
         </Link>
       </div>
