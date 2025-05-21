@@ -41,8 +41,8 @@ export default function EditClients() {
       console.log("📎 Resultado Cloudinary:", uploadData);
 
       if (!uploadRes.ok) {
-        console.error("❌ Error al subir PDF:", uploadData);
-        alert("Falló la subida del PDF: " + uploadData.error?.message);
+        console.error("❌ Error al subir PDF:", uploadData.error?.message || uploadData);
+        alert("Falló la subida del PDF: " + (uploadData.error?.message || "Error desconocido"));
         return;
       }
 
