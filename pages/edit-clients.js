@@ -1,6 +1,9 @@
 
 import { useEffect, useState } from "react";
 
+const CLOUDINARY_UPLOAD_PRESET = "padbot_upload";
+const CLOUDINARY_CLOUD_NAME = "dmin4ofkd";
+
 export default function EditClients() {
   const [clients, setClients] = useState([]);
   const [editing, setEditing] = useState(null);
@@ -23,32 +26,36 @@ export default function EditClients() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    let pdfUrl = editing.pdf;
+    if (pdfFile) {
+      const formData = new FormData();
+      formData.append("file", pdfFile);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const uploadData = await uploadRes.json();
+      pdfUrl = uploadData.secure_url;
+    }
+
+    const updatedClient = { ...editing, pdf: pdfUrl };
+
     const res = await fetch("/api/clientes", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editing),
+      body: JSON.stringify(updatedClient),
     });
 
     if (res.ok) {
-      await uploadPdf(editing.phone);
       alert("Cliente actualizado correctamente");
       setEditing(null);
       await refreshClients();
     } else {
       alert("Error al actualizar");
     }
-  };
-
-  const uploadPdf = async (phone) => {
-    if (!pdfFile || !phone) return;
-    const formData = new FormData();
-    formData.append("file", pdfFile);
-    formData.append("phone", phone);
-
-    await fetch("/api/upload-pdf", {
-      method: "POST",
-      body: formData,
-    });
   };
 
   return (
