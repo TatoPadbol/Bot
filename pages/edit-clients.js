@@ -123,11 +123,17 @@ export default function EditClients() {
                 onChange={(e) => handleChange("phone_number_id", e.target.value)}
                 placeholder="Phone Number ID"
               />
-              <input
-                type="file"
-                accept="application/pdf"
-                onChange={(e) => setPdfFile(e.target.files[0])}
-              />
+              {editing.pdf && (
+              <div style={{ marginBottom: "0.5rem" }}>
+                PDF actual:{" "}
+                <a href={editing.pdf} target="_blank" rel="noopener noreferrer">Ver archivo</a>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => setPdfFile(e.target.files[0])}
+            />
               <button type="submit">Guardar</button>
               <button type="button" onClick={() => setEditing(null)}>
                 Cancelar
