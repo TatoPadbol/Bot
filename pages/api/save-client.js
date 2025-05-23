@@ -1,5 +1,4 @@
 import { IncomingForm } from "formidable";
-import { parse } from "url";
 import { send } from "micro";
 import connectDB from "../../lib/mongodb";
 import Client from "../../models/client";
@@ -36,7 +35,14 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { name, industry, country, phone, info, url, pdfUrl, phone_number_id } = fields;
+      const name = Array.isArray(fields.name) ? fields.name[0] : fields.name;
+      const industry = Array.isArray(fields.industry) ? fields.industry[0] : fields.industry;
+      const country = Array.isArray(fields.country) ? fields.country[0] : fields.country;
+      const phone = Array.isArray(fields.phone) ? fields.phone[0] : fields.phone;
+      const info = Array.isArray(fields.info) ? fields.info[0] : fields.info;
+      const url = Array.isArray(fields.url) ? fields.url[0] : fields.url;
+      const pdfUrl = Array.isArray(fields.pdfUrl) ? fields.pdfUrl[0] : fields.pdfUrl;
+      const phone_number_id = Array.isArray(fields.phone_number_id) ? fields.phone_number_id[0] : fields.phone_number_id;
 
       const updated = await Client.findOneAndUpdate(
         { phone },
