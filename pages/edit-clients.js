@@ -51,7 +51,7 @@ export default function EditClients() {
         <div key={i} style={{ marginBottom: 30 }}>
           <h2>{client.name}</h2>
           <button onClick={() => handleEdit(client)}>Editar</button>
-        </div>
+        </form>
       ))}
 
       {editing && (
