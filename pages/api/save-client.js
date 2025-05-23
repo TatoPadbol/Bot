@@ -1,12 +1,14 @@
-import formidable from 'formidable';
-import { v2 as cloudinary } from 'cloudinary';
-import connectDB from '../../lib/mongodb';
-import Client from '../../models/client';
+import { IncomingForm } from "formidable";
+import { parse } from "url";
+import { send } from "micro";
+import connectDB from "../../lib/mongodb";
+import Client from "../../models/client";
+import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 export const config = {
@@ -16,18 +18,21 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  await connectDB();
-
-  if (req.method !== 'POST') {
-    return res.status(405).end('Method Not Allowed');
+  if (req.method !== "POST") {
+    res.statusCode = 405;
+    send(res, 405, "Method Not Allowed");
+    return;
   }
 
-  const form = new formidable.IncomingForm({ keepExtensions: true });
+  await connectDB();
+
+  const form = new IncomingForm({ keepExtensions: true });
 
   form.parse(req, async (err, fields, files) => {
     if (err) {
-      console.error('Error al parsear el formulario:', err);
-      return res.status(500).json({ success: false, error: 'Error en el parseo del formulario' });
+      console.error("Error al parsear el formulario:", err);
+      send(res, 500, { success: false, error: "Error en el parseo del formulario" });
+      return;
     }
 
     try {
@@ -43,15 +48,15 @@ export default async function handler(req, res) {
           info,
           url,
           pdfUrl,
-          phone_number_id
+          phone_number_id,
         },
         { upsert: true, new: true }
       );
 
-      return res.status(200).json({ success: true, data: updated });
+      send(res, 200, { success: true, data: updated });
     } catch (error) {
-      console.error('Error al guardar el cliente:', error);
-      return res.status(500).json({ success: false, error: 'Error al guardar el cliente' });
+      console.error("Error al guardar el cliente:", error);
+      send(res, 500, { success: false, error: "Error al guardar el cliente" });
     }
   });
 }
