@@ -27,7 +27,8 @@ export default function EditClients() {
     setEditing((prev) => ({ ...prev, file: e.target.files[0] }));
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e) => {
+    e.preventDefault();
     const formData = new FormData();
     for (const key in editing) {
       if (editing[key]) formData.append(key, editing[key]);
@@ -54,7 +55,7 @@ export default function EditClients() {
       ))}
 
       {editing && (
-        <div>
+        <form onSubmit={handleSave}>
           <input name="name" value={editing.name || ""} onChange={handleChange} placeholder="Nombre" />
           <input name="industry" value={editing.industry || ""} onChange={handleChange} placeholder="Industria" />
           <input name="country" value={editing.country || ""} onChange={handleChange} placeholder="País" />
@@ -64,7 +65,7 @@ export default function EditClients() {
           <input name="url" value={editing.url || ""} onChange={handleChange} placeholder="URL" />
           <p>PDF actual: <a href={editing.pdf} target="_blank" rel="noopener noreferrer">Ver archivo</a></p>
           <input type="file" onChange={handleFileChange} />
-          <button onClick={handleSave}>Guardar</button>
+          <button type="submit">Guardar</button>
           <button onClick={handleCancel}>Cancelar</button>
         </div>
       )}
