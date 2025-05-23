@@ -45,19 +45,21 @@ export default async function handler(req, res) {
       const pdfUrl = clean(fields.pdfUrl);
       const phone_number_id = clean(fields.phone_number_id);
 
+      const updateFields = {
+        name,
+        industry,
+        country,
+        phone,
+        info,
+        url,
+        pdfUrl,
+        phone_number_id
+      };
+
       const updated = await Client.findOneAndUpdate(
         { phone },
-        {
-          name,
-          industry,
-          country,
-          phone,
-          info,
-          url,
-          pdfUrl,
-          phone_number_id
-        },
-        { upsert: true, new: true }
+        { $set: updateFields },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
       );
 
       send(res, 200, { success: true, data: updated });
