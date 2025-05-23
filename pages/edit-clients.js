@@ -51,7 +51,7 @@ export default function EditClients() {
         <div key={i} style={{ marginBottom: 30 }}>
           <h2>{client.name}</h2>
           <button onClick={() => handleEdit(client)}>Editar</button>
-        </form>
+        </div>
       ))}
 
       {editing && (
@@ -63,11 +63,13 @@ export default function EditClients() {
           <input name="phone_number_id" value={editing.phone_number_id || ""} onChange={handleChange} placeholder="Phone Number ID" />
           <input name="info" value={editing.info || ""} onChange={handleChange} placeholder="Info" />
           <input name="url" value={editing.url || ""} onChange={handleChange} placeholder="URL" />
-          <p>PDF actual: <a href={editing.pdf} target="_blank" rel="noopener noreferrer">Ver archivo</a></p>
+          {editing.pdf && (
+            <p>PDF actual: <a href={editing.pdf} target="_blank" rel="noopener noreferrer">Ver archivo</a></p>
+          )}
           <input type="file" onChange={handleFileChange} />
           <button type="submit">Guardar</button>
-          <button onClick={handleCancel}>Cancelar</button>
-        </div>
+          <button type="button" onClick={handleCancel}>Cancelar</button>
+        </form>
       )}
     </div>
   );
