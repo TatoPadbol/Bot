@@ -1,6 +1,5 @@
 import formidable from 'formidable';
 import { v2 as cloudinary } from 'cloudinary';
-import * as cheerio from 'cheerio';
 import connectDB from '../../lib/mongodb';
 import Client from '../../models/client';
 
