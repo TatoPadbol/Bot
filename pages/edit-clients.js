@@ -103,7 +103,7 @@ export default function EditClients() {
                 type="text"
                 value={editing.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
-                placeholder="Teléfono"
+                placeholder="Teléfono del Cliente"
               />
               <input
                 type="text"
@@ -121,7 +121,7 @@ export default function EditClients() {
                 type="text"
                 value={editing.phone_number_id || ""}
                 onChange={(e) => handleChange("phone_number_id", e.target.value)}
-                placeholder="Phone Number ID"
+                placeholder="Phone Number ID de Meta"
               />
               {editing.pdf && (
               <div style={{ marginBottom: "0.5rem" }}>
