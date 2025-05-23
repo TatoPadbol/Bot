@@ -67,11 +67,82 @@ export default function EditClients() {
 
     if (res.ok) {
       alert("Cliente guardado correctamente");
+      setEditing(null);
       refreshClients();
     } else {
       alert("Hubo un error al guardar el cliente");
     }
   };
 
-  // Resto del componente omitido por brevedad...
+  return (
+    <div style={{ padding: "2rem" }}>
+      <h1>Editar Clientes</h1>
+      {clients.map((client) => (
+        <div key={client._id}>
+          {editing?._id === client._id ? (
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                value={editing.name}
+                onChange={(e) => handleChange("name", e.target.value)}
+                placeholder="Nombre"
+              />
+              <input
+                type="text"
+                value={editing.industry}
+                onChange={(e) => handleChange("industry", e.target.value)}
+                placeholder="Industria"
+              />
+              <input
+                type="text"
+                value={editing.country}
+                onChange={(e) => handleChange("country", e.target.value)}
+                placeholder="País"
+              />
+              <input
+                type="text"
+                value={editing.phone}
+                onChange={(e) => handleChange("phone", e.target.value)}
+                placeholder="Teléfono"
+              />
+              <input
+                type="text"
+                value={editing.info}
+                onChange={(e) => handleChange("info", e.target.value)}
+                placeholder="Info"
+              />
+              <input
+                type="text"
+                value={editing.url}
+                onChange={(e) => handleChange("url", e.target.value)}
+                placeholder="URL"
+              />
+              <input
+                type="text"
+                value={editing.phone_number_id || ""}
+                onChange={(e) => handleChange("phone_number_id", e.target.value)}
+                placeholder="Phone Number ID"
+              />
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setPdfFile(e.target.files[0])}
+              />
+              <button type="submit">Guardar</button>
+              <button type="button" onClick={() => setEditing(null)}>
+                Cancelar
+              </button>
+            </form>
+          ) : (
+            <div style={{ marginBottom: "1rem" }}>
+              <strong>{client.name}</strong>
+              <div>
+                <button onClick={() => setEditing(client)}>Editar</button>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }
