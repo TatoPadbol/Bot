@@ -60,7 +60,7 @@ export default function EditClients() {
     formData.append("pdfUrl", pdfUrl);
     formData.append("phone_number_id", editing.phone_number_id || "");
 
-    const res = await fetch("/api/save-client", {
+    const res = await fetch("/api/save-client-fix", {
       method: "POST",
       body: formData,
     });
@@ -103,7 +103,7 @@ export default function EditClients() {
                 type="text"
                 value={editing.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
-                placeholder="Teléfono del Cliente"
+                placeholder="Teléfono"
               />
               <input
                 type="text"
@@ -121,7 +121,7 @@ export default function EditClients() {
                 type="text"
                 value={editing.phone_number_id || ""}
                 onChange={(e) => handleChange("phone_number_id", e.target.value)}
-                placeholder="Phone Number ID de Meta"
+                placeholder="Phone Number ID"
               />
               {editing.pdf && (
               <div style={{ marginBottom: "0.5rem" }}>
