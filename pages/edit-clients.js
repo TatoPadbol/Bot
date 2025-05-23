@@ -60,7 +60,7 @@ export default function EditClients() {
     formData.append("pdfUrl", pdfUrl);
     formData.append("phone_number_id", editing.phone_number_id || "");
 
-    const res = await fetch("/api/save-client-fix", {
+    const res = await fetch("/api/save-client", {
       method: "POST",
       body: formData,
     });
