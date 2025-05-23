@@ -1,4 +1,3 @@
-
 import formidable from 'formidable';
 import { v2 as cloudinary } from 'cloudinary';
 import * as cheerio from 'cheerio';
@@ -33,52 +32,27 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { name, industry, country, phone, info, url } = fields;
-      const client = new Client({
-        name,
-        industry,
-        country,
-        phone,
-        info,
-        url
-      });
+      const { name, industry, country, phone, info, url, pdfUrl, phone_number_id } = fields;
 
-      if (files.pdf && files.pdf[0]) {
-        const result = await cloudinary.uploader.upload(files.pdf[0].filepath, {
-          resource_type: 'raw', folder: 'padbot-pdfs'
-        });
-        client.pdf = result.secure_url;
-        console.log("✅ PDF subido a Cloudinary:", result.secure_url);
-      }
+      const updated = await Client.findOneAndUpdate(
+        { phone },
+        {
+          name,
+          industry,
+          country,
+          phone,
+          info,
+          url,
+          pdfUrl,
+          phone_number_id
+        },
+        { upsert: true, new: true }
+      );
 
-      await client.save();
-      console.log("✅ Cliente guardado:", client.name);
-
-      if (url) {
-        try {
-          const response = await fetch(url);
-          const html = await response.text();
-          const $ = cheerio.load(html);
-          const text = $('body').text().replace(/\s+/g, ' ').trim();
-
-          client.trainingData = client.trainingData || [];
-          client.trainingData.push({
-            filename: 'Contenido de la URL',
-            content: text,
-            uploadedAt: new Date(),
-          });
-
-          await client.save();
-          console.log("✅ Contenido de URL entrenado para:", client.name);
-        } catch (err) {
-          console.error("Error al entrenar desde la URL:", err.message);
-        }
-      }
-
-      res.status(201).json({ success: true });
+      return res.status(200).json({ success: true, data: updated });
     } catch (error) {
-      console.error("Error en save-client:", error);
-      res.status(400).json({ success: false, error: error.message });
+      console.error('Error al guardar el cliente:', error);
+      return res.status(500).json({ success: false, error: 'Error al guardar el cliente' });
     }
   });
 }
