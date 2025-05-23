@@ -5,7 +5,7 @@ export default function EditClients() {
   const [editing, setEditing] = useState(null);
 
   useEffect(() => {
-    fetch("/api/clients")
+    fetch("/api/clientes")
       .then((res) => res.json())
       .then((data) => setClients(data));
   }, []);
@@ -39,7 +39,7 @@ export default function EditClients() {
     });
 
     setEditing(null);
-    const updated = await fetch("/api/clients").then((res) => res.json());
+    const updated = await fetch("/api/clientes").then((res) => res.json());
     setClients(updated);
   };
 
