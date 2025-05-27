@@ -1,13 +1,14 @@
-import { IncomingForm } from "formidable";
-import { send } from "micro";
-import connectDB from "../../lib/mongodb";
-import Client from "../../models/client";
-import { v2 as cloudinary } from "cloudinary";
+
+import formidable from 'formidable';
+import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs';
+import connectDB from '../../lib/mongodb';
+import Client from '../../models/client';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 export const config = {
@@ -17,55 +18,51 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    res.statusCode = 405;
-    send(res, 405, "Method Not Allowed");
-    return;
-  }
-
   await connectDB();
 
-  const form = new IncomingForm({ keepExtensions: true });
+  if (req.method !== 'POST') {
+    return res.status(405).end('Method Not Allowed');
+  }
+
+  const form = new formidable.IncomingForm({ keepExtensions: true });
 
   form.parse(req, async (err, fields, files) => {
     if (err) {
-      console.error("Error al parsear el formulario:", err);
-      send(res, 500, { success: false, error: "Error en el parseo del formulario" });
-      return;
+      console.error('Error al parsear el formulario:', err);
+      return res.status(500).json({ success: false, error: 'Error en el parseo del formulario' });
     }
 
     try {
-      const clean = (val) => Array.isArray(val) ? val[0] : val;
-      const name = clean(fields.name);
-      const industry = clean(fields.industry);
-      const country = clean(fields.country);
-      const phone = clean(fields.phone);
-      const info = clean(fields.info);
-      const url = clean(fields.url);
-      const pdfUrl = clean(fields.pdfUrl);
-      const phone_number_id = clean(fields.phone_number_id);
+      const { name, industry, country, phone, info, url, numberId } = fields;
+      let pdfUrl = fields.pdfUrl;
 
-      const updateFields = {
-        name,
-        industry,
-        country,
-        phone,
-        info,
-        url,
-        pdfUrl,
-        phone_number_id
-      };
+      if (files.pdf && files.pdf.filepath) {
+        const uploadResult = await cloudinary.uploader.upload(files.pdf.filepath, {
+          resource_type: 'raw',
+          folder: 'padbot_docs'
+        });
+        pdfUrl = uploadResult.secure_url;
+      }
 
       const updated = await Client.findOneAndUpdate(
         { phone },
-        { $set: updateFields },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
+        {
+          name,
+          industry,
+          country,
+          phone,
+          info,
+          url,
+          numberId,
+          pdf: pdfUrl
+        },
+        { upsert: true, new: true }
       );
 
-      send(res, 200, { success: true, data: updated });
+      return res.status(200).json({ success: true, message: 'Cliente guardado correctamente', data: updated });
     } catch (error) {
-      console.error("Error al guardar el cliente:", error);
-      send(res, 500, { success: false, error: "Error al guardar el cliente" });
+      console.error('Error al guardar el cliente:', error);
+      return res.status(500).json({ success: false, error: 'Error al guardar el cliente' });
     }
   });
 }
