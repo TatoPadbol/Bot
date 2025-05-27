@@ -1,14 +1,22 @@
 
+import formidable from 'formidable';
+import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs';
+import connectDB from '../../lib/mongodb';
+import Client from '../../models/client';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
 export const config = {
   api: {
     bodyParser: false,
-    externalResolver: true,
+    externalResolver: true
   },
 };
-
-import formidable from 'formidable';
-import connectDB from '../../lib/mongodb';
-import Client from '../../models/client';
 
 export default async function handler(req, res) {
   await connectDB();
@@ -19,31 +27,43 @@ export default async function handler(req, res) {
 
   const form = new formidable.IncomingForm({ keepExtensions: true });
 
-  form.parse(req, async (err, fields) => {
+  form.parse(req, async (err, fields, files) => {
     if (err) {
-      return res.status(500).json({ error: 'Error al parsear' });
+      console.error('Error al parsear el formulario:', err);
+      return res.status(500).json({ success: false, error: 'Error al parsear el formulario' });
     }
 
     try {
       const numberId = Array.isArray(fields.numberId) ? fields.numberId[0] : fields.numberId;
 
+      const updatedData = {
+        name: fields.name,
+        industry: fields.industry,
+        country: fields.country,
+        phone: fields.phone,
+        info: fields.info,
+        url: fields.url,
+        numberId: numberId,
+      };
+
+      if (files.pdf && files.pdf.filepath) {
+        const uploadResult = await cloudinary.uploader.upload(files.pdf.filepath, {
+          resource_type: 'raw',
+          folder: 'padbot_docs'
+        });
+        updatedData.pdf = uploadResult.secure_url;
+      }
+
       const updated = await Client.findOneAndUpdate(
         { phone: fields.phone },
-        {
-          name: fields.name,
-          industry: fields.industry,
-          country: fields.country,
-          phone: fields.phone,
-          info: fields.info,
-          url: fields.url,
-          numberId: numberId
-        },
+        updatedData,
         { upsert: true, new: true }
       );
 
-      return res.status(200).json({ message: 'Cliente guardado correctamente', data: updated });
+      return res.status(200).json({ success: true, message: 'Cliente guardado correctamente', data: updated });
     } catch (error) {
-      return res.status(500).json({ error: 'Error al guardar el cliente' });
+      console.error('Error al guardar el cliente:', error);
+      return res.status(500).json({ success: false, error: 'Error al guardar el cliente' });
     }
   });
 }
