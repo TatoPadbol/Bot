@@ -31,18 +31,39 @@ export default function EditClients() {
   const handleSave = async (e) => {
     e.preventDefault();
     const formData = new FormData();
+
     for (const key in editing) {
-      if (editing[key]) formData.append(key, editing[key]);
+      if (editing[key] !== undefined) {
+        const value = editing[key];
+        if (key === "file") {
+          formData.append("pdf", value); // subir como "pdf"
+        } else {
+          formData.append(key, typeof value === "string" ? value : String(value));
+        }
+      }
     }
 
-    await fetch("/api/save-client", {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const res = await fetch("/api/save-client", {
+        method: "POST",
+        body: formData,
+      });
 
-    setEditing(null);
-    const updated = await fetch("/api/clientes").then((res) => res.json());
-    setClients(updated);
+      const data = await res.json();
+      if (!res.ok) {
+        console.error("Error al guardar:", data);
+        alert("Error al guardar cliente");
+        return;
+      }
+
+      alert("Cliente guardado correctamente");
+      setEditing(null);
+      const updated = await fetch("/api/clientes").then((res) => res.json());
+      setClients(updated);
+    } catch (err) {
+      console.error("Fallo en la solicitud:", err);
+      alert("Fallo al conectar con el servidor");
+    }
   };
 
   return (
