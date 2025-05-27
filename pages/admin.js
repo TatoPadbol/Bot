@@ -8,6 +8,7 @@ export default function Admin() {
   const [phone, setPhone] = useState("");
   const [info, setInfo] = useState("");
   const [url, setUrl] = useState("");
+  const [numberId, setNumberId] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
 
   const handleSubmit = async (e) => {
@@ -20,6 +21,7 @@ export default function Admin() {
     formData.append("phone", phone);
     formData.append("info", info);
     formData.append("url", url);
+    formData.append("numberId", numberId);
     if (pdfFile) formData.append("pdf", pdfFile);
 
     const res = await fetch("/api/save-client", {
@@ -41,6 +43,7 @@ export default function Admin() {
         <input placeholder="Teléfono" value={phone} onChange={(e) => setPhone(e.target.value)} />
         <textarea placeholder="Info" value={info} onChange={(e) => setInfo(e.target.value)}></textarea>
         <input placeholder="URL" value={url} onChange={(e) => setUrl(e.target.value)} />
+        <input placeholder="Number ID" value={numberId} onChange={(e) => setNumberId(e.target.value)} />
         <input type="file" onChange={(e) => setPdfFile(e.target.files[0])} />
         <button type="submit">Guardar cliente</button>
       </form>

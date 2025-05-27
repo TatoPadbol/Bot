@@ -9,6 +9,7 @@ const ClientSchema = new mongoose.Schema({
   phone: String,
   info: String,
   pdf: String,
+  numberId: String,
   trainingData: [
     {
       filename: String,

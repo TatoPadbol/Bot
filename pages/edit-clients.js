@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 export default function EditClients() {
@@ -60,7 +61,7 @@ export default function EditClients() {
           <input name="industry" value={editing.industry || ""} onChange={handleChange} placeholder="Industria" />
           <input name="country" value={editing.country || ""} onChange={handleChange} placeholder="País" />
           <input name="phone" value={editing.phone || ""} onChange={handleChange} placeholder="Teléfono" />
-          <input name="phone_number_id" value={editing.phone_number_id || ""} onChange={handleChange} placeholder="Phone Number ID" />
+          <input name="numberId" value={editing.numberId || ""} onChange={handleChange} placeholder="Number ID" />
           <input name="info" value={editing.info || ""} onChange={handleChange} placeholder="Info" />
           <input name="url" value={editing.url || ""} onChange={handleChange} placeholder="URL" />
           {editing.pdf && (

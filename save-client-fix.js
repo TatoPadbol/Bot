@@ -1,3 +1,4 @@
+
 import formidable from 'formidable';
 import { v2 as cloudinary } from 'cloudinary';
 import connectDB from '../../lib/mongodb';
@@ -31,7 +32,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { name, industry, country, phone, info, url, pdfUrl, phone_number_id } = fields;
+      const { name, industry, country, phone, info, url, pdfUrl, numberId } = fields;
 
       const updated = await Client.findOneAndUpdate(
         { phone },
@@ -42,13 +43,13 @@ export default async function handler(req, res) {
           phone,
           info,
           url,
-          pdfUrl,
-          phone_number_id
+          pdf: pdfUrl,
+          numberId
         },
         { upsert: true, new: true }
       );
 
-      return res.status(200).json({ success: true, data: updated });
+      return res.status(200).json({ success: true, message: 'Cliente guardado correctamente', data: updated });
     } catch (error) {
       console.error('Error al guardar el cliente:', error);
       return res.status(500).json({ success: false, error: 'Error al guardar el cliente' });
