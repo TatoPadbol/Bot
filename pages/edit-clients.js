@@ -36,11 +36,16 @@ export default function EditClients() {
       if (editing[key] !== undefined) {
         const value = editing[key];
         if (key === "file") {
-          formData.append("pdf", value); // subir como "pdf"
+          formData.append("pdf", value);
         } else {
           formData.append(key, typeof value === "string" ? value : String(value));
         }
       }
+    }
+
+    // Mostrar el contenido de formData
+    for (const pair of formData.entries()) {
+      console.log(pair[0] + ": " + pair[1]);
     }
 
     try {
