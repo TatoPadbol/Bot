@@ -32,8 +32,15 @@ export default async function handler(req, res) {
       return res.status(500).json({ success: false, error: 'Error en el parseo del formulario' });
     }
 
+    console.log("FIELDS", fields);
+    console.log("FILES", files);
+
     try {
       const { name, industry, country, phone, info, url, numberId } = fields;
+      if (!phone) {
+        return res.status(400).json({ success: false, error: 'Falta el campo obligatorio: phone' });
+      }
+
       let pdfUrl = fields.pdfUrl;
 
       if (files.pdf && files.pdf.filepath) {
